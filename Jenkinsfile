@@ -8,5 +8,12 @@ pipeline {
                     url: 'https://github.com/V1-shahid/devops-python-cicd.git'
             }
         }
+
+        stage('Check Python') {
+            steps {
+                sh 'python3 --version'
+                sh 'pip3 --version'
+            }
+        }
     }
 }
