@@ -29,5 +29,13 @@ pipeline {
                 '''
             }
         }
+
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                    docker build -t devops-python-cicd:${BUILD_NUMBER} .
+                '''
+            }
+        }
     }
 }
