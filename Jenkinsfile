@@ -37,18 +37,26 @@ pipeline {
                 '''
             }
         }
+
         stage('Deploy') {
             steps {
                 sh '''
-                    docker rm -f devops-python-cicd-container || true docker run -d --name devops-python-cicd-container -p 5000:5000 devops-python-cicd:${BUILD_NUMBER}
-                    '''
+                    docker rm -f devops-python-cicd-container || true
+
+                    docker run -d \
+                        --name devops-python-cicd-container \
+                        -p 5000:5000 \
+                        devops-python-cicd:${BUILD_NUMBER}
+                '''
             }
         }
+
         stage('Health Check') {
             steps {
                 sh '''
-                    docker exec devops-python-cicd-container python -c "import urllib.request; r=urllib.request.urlopen('http://localhost:5000/health'); print(r.read().decode()); exit(0 if r.status == 200 else 1)"
-                    '''
+                    docker exec devops-python-cicd-container \
+                        python -c "import urllib.request; r=urllib.request.urlopen('http://localhost:5000/health'); print(r.read().decode()); exit(0 if r.status == 200 else 1)"
+                '''
             }
         }
     }
