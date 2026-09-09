@@ -40,13 +40,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                    docker rm -f 
-                    devops-python-cicd-container ||
-                    true
-                    docker run -d --name 
-                    devops-python-cicd-container -p 
-                    5000:5000 devops-python-cicd:$
-                    {BUILD_NUMBER}
+                    docker rm -f devops-python-cicd-container || true docker run -d --name devops-python-cicd-container -p 5000:5000 devops-python-cicd:${BUILD_NUMBER}
                     '''
             }
         }
