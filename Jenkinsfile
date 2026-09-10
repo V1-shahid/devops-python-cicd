@@ -38,6 +38,23 @@ pipeline {
             }
         }
 
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASSWORD'
+                )]) {
+                    sh '''
+                        docker login -u "$DOCKER_USER" -p "$DOCKER_PASSWORD"
+                        docker tag devops-python-cicd:${BUILD_NUMBER} v1shahid/devops-python-cicd:${BUILD_NUMBER}
+                        docker push v1shahid/devops-python-cicd:${BUILD_NUMBER}
+                        docker logout
+                    '''
+                }
+            }
+        }
+
         stage('Deploy') {
             steps {
                 sh '''
