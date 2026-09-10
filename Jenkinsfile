@@ -59,5 +59,12 @@ pipeline {
                 '''
             }
         }
+        stage('Cleanup Old Images') {
+            steps{
+                sh '''
+                    docker image prune -f
+                '''
+            }
+        }
     }
 }
