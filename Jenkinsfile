@@ -87,7 +87,26 @@ pipeline {
     }
     post {
         failure {
-            echo "Pipeline failed -rollback with be handled here"
+            script {
+                def previousBuild = currentBuild.previousSuccessfulBuild
+
+                if (previousBuild) {
+                    def previousImage = "v1shahid/devops-python-cicd:${previousBuild.numer}"
+
+                    echo "Rolling back to ${previousImage}"
+
+                    sh """
+                        docker rm -f devops-python-cicd-container || true
+                        docker run -d \
+                            --name devops-python-cicd-container \
+                            -p 5000:5000 \
+                            ${previousImage}
+                    """
+                } else {
+                    echo "No previous successfull build available for rollback"
+                }
+            }
+            
         }
     }
 }
