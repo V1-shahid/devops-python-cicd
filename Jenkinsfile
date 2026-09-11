@@ -73,7 +73,7 @@ pipeline {
             steps {
                 sh '''
                     docker exec devops-python-cicd-container \
-                        python -c "import urllib.request; r=urllib.request.urlopen('http://host.docker.internal:5000/health'); print(r.read().decode()); exit(0 if r.status == 200 else 1)"
+                        python -c "import urllib.request; r=urllib.request.urlopen('http://host.docker.internal:5000/wrong-health'); print(r.read().decode()); exit(0 if r.status == 200 else 1)"
                 '''
             }
         }
