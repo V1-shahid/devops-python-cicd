@@ -85,4 +85,9 @@ pipeline {
             }
         }
     }
+    post {
+        failure {
+            echo "Pipeline failed -rollback with be handled here"
+        }
+    }
 }
