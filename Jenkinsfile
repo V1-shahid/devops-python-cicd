@@ -104,7 +104,7 @@ pipeline {
                     """
                 } else {
                     echo "No previous successfull build available for rollback"
-                }
+                    }
             }
             
         }
