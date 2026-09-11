@@ -88,7 +88,7 @@ pipeline {
     post {
         failure {
             script {
-                def previousBuild = currentBuild.previousSuccessfulBuild
+                def previousBuild = currentBuild.getPreviousSuccessfulBuild()
 
                 if (previousBuild) {
                     def previousImage = "v1shahid/devops-python-cicd:${previousBuild.numer}"
