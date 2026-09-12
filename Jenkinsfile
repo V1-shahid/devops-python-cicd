@@ -99,10 +99,8 @@ pipeline {
     post {
         failure {
             sh '''
-                PREVIOUS_BUILD=$((BUILD_NUMBER - 1))
-                echo "Rolling back to Docker image: v1shahid/devops-python-cicd: $PREVIOUS_BUILD"
-
-                docker pull v1shahid/devops-python-cicd:$PREVIOUS_BUILD
+                
+                echo "Rolling back to previous Docker image"
 
                 docker rm -f devops-python-cicd-container || true
                 docker run -d \
