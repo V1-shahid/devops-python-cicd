@@ -58,9 +58,20 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
+                    # Save the currently running image as the previous version
+                    CURRENT_IMAGE=$(docker inspect -f '{{.config.Image}}' devops-python-cicd-container)
+
+                    echo "Current running image: $CURRENT_IMAGE"
+                    docker tag "$CURRENT_IMAGE" v1shahid/devops-python-cicd:prebious
+
+                    #pull the new image
                     docker pull v1shahid/devops-python-cicd:${BUILD_NUMBER}
+
+                    #Remove old container
                     docker rm -f devops-python-cicd-container || true
 
+
+                    # Start new version
                     docker run -d \
                         --name devops-python-cicd-container \
                         -p 5000:5000 \
