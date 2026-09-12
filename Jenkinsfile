@@ -57,25 +57,35 @@ pipeline {
 
         stage('Deploy') {
             steps {
+                script {
+                    env.DEPLOY_STARTED = 'true'
+                }
+
                 sh '''
-                    # Save the currently running image as the previous version
+                    # Save currently running image as previous
                     CURRENT_IMAGE=$(docker inspect -f '{{.Config.Image}}' devops-python-cicd-container 2>/dev/null || true)
 
-                    echo "Current running image: $CURRENT_IMAGE"
-                    docker tag "$CURRENT_IMAGE" v1shahid/devops-python-cicd:prebious
+                    if [ -n "$CURRENT_IMAGE" ]; then
+                        echo "Current running image: $CURRENT_IMAGE"
+                        docker tag "$CURRENT_IMAGE" v1shahid/devops-python-cicd:previous
+                        echo "Previous image saved."
+                    else
+                        echo "No existing container found. No previous image to save."
+                    fi
 
-                    #pull the new image
+                    # Pull new image
                     docker pull v1shahid/devops-python-cicd:${BUILD_NUMBER}
 
-                    #Remove old container
+                    # Remove old container
                     docker rm -f devops-python-cicd-container || true
-
 
                     # Start new version
                     docker run -d \
                         --name devops-python-cicd-container \
                         -p 5000:5000 \
                         v1shahid/devops-python-cicd:${BUILD_NUMBER}
+
+                    echo "New version deployed."
                 '''
             }
         }
@@ -88,28 +98,45 @@ pipeline {
                 '''
             }
         }
+
         stage('Cleanup Old Images') {
-            steps{
+            steps {
                 sh '''
                     docker image prune -f
                 '''
             }
         }
     }
+
     post {
         failure {
-            sh '''
-                
-                echo "Rolling back to previous Docker image"
+            script {
+                if (env.DEPLOY_STARTED == 'true') {
+                    sh '''
+                        if docker image inspect v1shahid/devops-python-cicd:previous >/dev/null 2>&1; then
 
-                docker rm -f devops-python-cicd-container || true
-                docker run -d \
-                    --name devops-python-cicd-container \
-                    -p 5000:5000 \
-                    v1shahid/devops-python-cicd:$PREVIOUS_BUILD
+                            echo "Pipeline failed."
+                            echo "Rolling back to previous Docker image."
 
-                echo "Rollback completed"
-            '''
+                            docker pull v1shahid/devops-python-cicd:previous
+
+                            docker rm -f devops-python-cicd-container || true
+
+                            docker run -d \
+                                --name devops-python-cicd-container \
+                                -p 5000:5000 \
+                                v1shahid/devops-python-cicd:previous
+
+                            echo "Rollback completed."
+
+                        else
+                            echo "No previous image available. Rollback skipped."
+                        fi
+                    '''
+                } else {
+                    echo "Deployment was not started. Rollback not required."
+                }
+            }
         }
     }
 }
