@@ -59,7 +59,7 @@ pipeline {
             steps {
                 sh '''
                     # Save the currently running image as the previous version
-                    CURRENT_IMAGE=$(docker inspect -f '{{/Config.Image}}' devops-python-cicd-container)
+                    CURRENT_IMAGE=$(docker inspect -f '{{.Config.Image}}' devops-python-cicd-container)
 
                     echo "Current running image: $CURRENT_IMAGE"
                     docker tag "$CURRENT_IMAGE" v1shahid/devops-python-cicd:prebious
