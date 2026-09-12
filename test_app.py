@@ -7,7 +7,7 @@ def test_home():
     response = client.get("/")
 
     assert response.status_code == 200
-    assert response.data == b"Hello from DevOps CI/CD - Auto Build v2 pro!"
+    assert response.data == b"Hello from DevOps CI/CD - Auto Build v2 pro Test auto!"
 
 
 def test_health():
